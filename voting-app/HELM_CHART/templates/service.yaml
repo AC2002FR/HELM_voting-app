@@ -1,16 +1,45 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: voting-service
+  name: vote
   labels:
-    name: voting-service
-    app: demo-voting-app
+    app: {{ .Values.vote.app }}
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
-  - port: 80
-    targetPort: 80
-    nodePort: 30004
+  - name: "vote-service"
+    port: {{ .Values.vote.service.port }}
+    targetPort: {{ .Values.vote.service.targetport }}
   selector:
-    name: voting-app-pod
-    app: demo-voting-app
+    app: {{ .Values.vote.app }}
+
+  apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: db
+  name: db
+spec:
+  type: ClusterIP
+  ports:
+  - name: "db-service"
+    port: 5432
+    targetPort: 5432
+  selector:
+    app: db
+
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: redis
+  name: redis
+spec:
+  type: ClusterIP
+  ports:
+  - name: "redis-service"
+    port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
